@@ -1,0 +1,34 @@
+# Секреты и токены
+.env
+*.env
+.env.local
+.env.*.local
+
+# Кэш Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.swp
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ОС
+.DS_Store
+Thumbs.db
