@@ -356,30 +356,50 @@ async def cmd_search(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "like")
 async def handle_like(callback: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    vacancy = data.get("current_vacancy")
+    try:
+        data = await state.get_data()
+        vacancy = data.get("current_vacancy")
+        
+        if not vacancy:
+            await callback.answer("❌ Вакансия не найдена", show_alert=True)
+            return
+        
+        # Сохраняем отклик
+        await save_response(callback.from_user.id, vacancy["id"], "like")
+        
+        # Показываем следующую вакансию
+        await callback.message.edit_text(
+            f"✅ Отклик отправлен!\nКомпания свяжется с вами по ссылке:\n{vacancy['url']}",
+            reply_markup=None
+        )
+        await state.clear()
+        await callback.answer()
     
-    if not vacancy:
-        await callback.answer("❌ Вакансия не найдена", show_alert=True)
-        return
-    
-    # Сохраняем отклик
-    await save_response(callback.from_user.id, vacancy["id"], "like")
-    
-    # Показываем следующую вакансию
-    await callback.message.edit_text(
-        f"✅ Отклик отправлен!\nКомпания свяжется с вами по ссылке:\n{vacancy['url']}",
-        reply_markup=None
-    )
-    await state.clear()
-    await callback.answer()
+    except Exception as e:
+        # Игнорируем ошибку "query is too old"
+        if "query is too old" in str(e).lower():
+            print(f"⚠️ Игнорируем устаревший запрос от пользователя {callback.from_user.id}")
+        else:
+            print(f"❌ Ошибка в handle_like: {e}")
+            import traceback
+            traceback.print_exc()
 
 @router.callback_query(F.data == "skip")
 async def handle_skip(callback: CallbackQuery, state: FSMContext):
-    # Просто очищаем состояние
-    await state.clear()
-    await callback.message.edit_text("⏭ Вакансия пропущена", reply_markup=None)
-    await callback.answer()
+    try:
+        # Просто очищаем состояние
+        await state.clear()
+        await callback.message.edit_text("⏭ Вакансия пропущена", reply_markup=None)
+        await callback.answer()
+    
+    except Exception as e:
+        # Игнорируем ошибку "query is too old"
+        if "query is too old" in str(e).lower():
+            print(f"⚠️ Игнорируем устаревший запрос от пользователя {callback.from_user.id}")
+        else:
+            print(f"❌ Ошибка в handle_skip: {e}")
+            import traceback
+            traceback.print_exc()
 
 @router.message(F.text)
 async def handle_any_text(message: Message):
