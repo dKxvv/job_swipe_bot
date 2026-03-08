@@ -412,7 +412,7 @@ async def handle_any_text(message: Message):
         "/search — искать вакансии 🔜"
     )
 
-    # ===== ВЕБ-СЕРВЕР ДЛЯ ПРОВЕРКИ ЗДОРОВЬЯ (обязательно для Fly.io) =====
+    # ===== ВЕБ-СЕРВЕР ДЛЯ ПРОВЕРКИ ЗДОРОВЬЯ =====
 async def health_check(request):
     return web.Response(text="OK")
 
@@ -422,7 +422,7 @@ async def start_health_server():
     app.router.add_get('/health', health_check)
     runner = web.AppRunner(app)
     await runner.setup()
-    port = int(os.environ.get('PORT', 8000))
+    port = int(os.environ.get('PORT', 10000))
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
     print(f"✅ Веб-сервер здоровья активен на порту {port}")
